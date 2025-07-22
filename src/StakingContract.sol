@@ -7,7 +7,6 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 
 contract StakingContract is Initializable, ReentrancyGuardUpgradeable, IERC165 {
-
     // -- Stake Variables --
     IERC20 public stakingToken;
     address public owner;
@@ -539,8 +538,7 @@ contract StakingContract is Initializable, ReentrancyGuardUpgradeable, IERC165 {
     }
 
     // Interface Support
-    function supportsInterface(bytes4 interfaceId) public pure override returns(bool) {
+    function supportsInterface(bytes4 interfaceId) public pure override returns (bool) {
         return interfaceId == type(IERC165).interfaceId;
     }
-
 }
