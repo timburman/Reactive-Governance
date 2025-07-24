@@ -21,7 +21,7 @@ contract MyTokenTest is Test {
 
         // Deploy the token with the test contract as the owner
         token = new MyToken(owner);
-        
+
         // Mint initial supply to user1
         vm.startPrank(owner);
         token.mint(user1, INITIAL_MINT_AMOUNT);
@@ -43,7 +43,7 @@ contract MyTokenTest is Test {
         vm.prank(user1);
         token.approve(user2, 50e18);
     }
-    
+
     function testGas_TransferFrom_Success() public {
         // user1 approves user2 to spend tokens
         vm.prank(user1);
@@ -64,7 +64,7 @@ contract MyTokenTest is Test {
         // First, delegate to user1
         vm.prank(user1);
         token.delegate(user1);
-        
+
         // Then, change delegation to user2
         vm.prank(user1);
         token.delegate(user2);
@@ -74,7 +74,6 @@ contract MyTokenTest is Test {
         vm.prank(owner);
         token.mint(user1, 1e18);
     }
-
 
     // --- Edge Case Scenarios ---
 
@@ -104,7 +103,6 @@ contract MyTokenTest is Test {
         token.approve(user2, 100e18);
     }
 
-
     // --- Expected Revert Scenarios ---
     // These show the gas cost of failed transactions.
 
@@ -126,7 +124,7 @@ contract MyTokenTest is Test {
         token.transferFrom(user1, owner, 51e18);
     }
 
-     function testRevert_Mint_NotOwner() public {
+    function testRevert_Mint_NotOwner() public {
         vm.prank(user1); // A non-owner tries to mint
         vm.expectRevert();
         token.mint(user1, 1e18);
