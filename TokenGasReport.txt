@@ -1,0 +1,44 @@
+No files changed, compilation skipped
+
+Ran 13 tests for test/Token.t.sol:MyTokenTest
+[PASS] testGas_Approve_ChangeValue() (gas: 89378)
+[PASS] testGas_Approve_MaxUint() (gas: 59044)
+[PASS] testGas_Approve_Success() (gas: 58830)
+[PASS] testGas_Delegate_ChangeDelegate() (gas: 198001)
+[PASS] testGas_Delegate_FirstTime() (gas: 106643)
+[PASS] testGas_Mint_Success() (gas: 61867)
+[PASS] testGas_TransferFrom_Success() (gas: 104966)
+[PASS] testGas_Transfer_FullBalance() (gas: 47811)
+[PASS] testGas_Transfer_Success() (gas: 52065)
+[PASS] testGas_Transfer_ZeroTokens() (gas: 46440)
+[PASS] testRevert_Mint_NotOwner() (gas: 35661)
+[PASS] testRevert_TransferFrom_InsufficientAllowance() (gas: 87350)
+[PASS] testRevert_Transfer_InsufficientBalance() (gas: 37726)
+Suite result: ok. 13 passed; 0 failed; 0 skipped; finished in 6.41ms (7.19ms CPU time)
+
+╭--------------------------------+-----------------+--------+--------+--------+---------╮
+| src/Token.sol:MyToken Contract |                 |        |        |        |         |
++=======================================================================================+
+| Deployment Cost                | Deployment Size |        |        |        |         |
+|--------------------------------+-----------------+--------+--------+--------+---------|
+| 1765719                        | 9443            |        |        |        |         |
+|--------------------------------+-----------------+--------+--------+--------+---------|
+|                                |                 |        |        |        |         |
+|--------------------------------+-----------------+--------+--------+--------+---------|
+| Function Name                  | Min             | Avg    | Median | Max    | # Calls |
+|--------------------------------+-----------------+--------+--------+--------+---------|
+| approve                        | 28959           | 43259  | 46059  | 46359  | 6       |
+|--------------------------------+-----------------+--------+--------+--------+---------|
+| balanceOf                      | 2699            | 2699   | 2699   | 2699   | 1       |
+|--------------------------------+-----------------+--------+--------+--------+---------|
+| delegate                       | 88444           | 93216  | 95603  | 95603  | 3       |
+|--------------------------------+-----------------+--------+--------+--------+---------|
+| mint                           | 24181           | 109178 | 120350 | 120350 | 15      |
+|--------------------------------+-----------------+--------+--------+--------+---------|
+| transfer                       | 24707           | 50782  | 56274  | 56274  | 17      |
+|--------------------------------+-----------------+--------+--------+--------+---------|
+| transferFrom                   | 24729           | 34727  | 34727  | 44726  | 2       |
+╰--------------------------------+-----------------+--------+--------+--------+---------╯
+
+
+Ran 1 test suite in 11.34ms (6.41ms CPU time): 13 tests passed, 0 failed, 0 skipped (13 total tests)
