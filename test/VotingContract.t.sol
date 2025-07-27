@@ -7,7 +7,6 @@ import "../src/StakingContract.sol";
 import "openzeppelin-contracts/contracts/mocks/token/ERC20Mock.sol";
 
 contract VotingContractTest is Test {
-
     StakingContract public stakingContract;
     VotingContract public votingContract;
     ERC20Mock public stakingToken;
@@ -19,8 +18,8 @@ contract VotingContractTest is Test {
     address public voter2;
     address public voter3;
 
-    uint constant INITIAL_MINT = 1_000_000 ether;
-    uint constant STAKE_AMOUNT = 100 ether;
+    uint256 constant INITIAL_MINT = 1_000_000 ether;
+    uint256 constant STAKE_AMOUNT = 100 ether;
 
     function setUp() public {
         owner = makeAddr("owner");
@@ -51,7 +50,7 @@ contract VotingContractTest is Test {
         voters[1] = voter2;
         voters[2] = voter3;
 
-        for (uint i = 0; i < voters.length; i++) {
+        for (uint256 i = 0; i < voters.length; i++) {
             stakingToken.mint(voters[i], INITIAL_MINT);
             vm.prank(voters[i]);
             stakingToken.approve(address(stakingContract), type(uint256).max);
@@ -65,10 +64,14 @@ contract VotingContractTest is Test {
     function testGas_CreateProposal_Binary() public {
         vm.prank(proposer);
         votingContract.createProposal(
-            "Test Proposal", "A binary choice.", 
-            VotingContract.ProposalCategory.PARAMETER_CHANGE, 
-            VotingContract.ProposalType.BINARY, 
-            new string[](0), "", address(0), 0
+            "Test Proposal",
+            "A binary choice.",
+            VotingContract.ProposalCategory.PARAMETER_CHANGE,
+            VotingContract.ProposalType.BINARY,
+            new string[](0),
+            "",
+            address(0),
+            0
         );
     }
 
@@ -81,17 +84,30 @@ contract VotingContractTest is Test {
 
         vm.prank(proposer);
         votingContract.createProposal(
-            "Multi-Choice", "Many options.", 
-            VotingContract.ProposalCategory.GOVERNANCE_CHANGE, 
-            VotingContract.ProposalType.MULTICHOICE, 
-            choices, "", address(0), 0
+            "Multi-Choice",
+            "Many options.",
+            VotingContract.ProposalCategory.GOVERNANCE_CHANGE,
+            VotingContract.ProposalType.MULTICHOICE,
+            choices,
+            "",
+            address(0),
+            0
         );
     }
 
     function testGas_Vote_Success() public {
         // Create a proposal first
         vm.prank(proposer);
-        uint256 proposalId = votingContract.createProposal("Vote on This", "...", VotingContract.ProposalCategory.PARAMETER_CHANGE, VotingContract.ProposalType.BINARY, new string[](0), "", address(0), 0);
+        uint256 proposalId = votingContract.createProposal(
+            "Vote on This",
+            "...",
+            VotingContract.ProposalCategory.PARAMETER_CHANGE,
+            VotingContract.ProposalType.BINARY,
+            new string[](0),
+            "",
+            address(0),
+            0
+        );
 
         // voter1 casts their vote
         vm.prank(voter1);
@@ -100,7 +116,16 @@ contract VotingContractTest is Test {
 
     function testRevert_Vote_Twice() public {
         vm.prank(proposer);
-        uint256 proposalId = votingContract.createProposal("Vote on This", "...", VotingContract.ProposalCategory.PARAMETER_CHANGE, VotingContract.ProposalType.BINARY, new string[](0), "", address(0), 0);
+        uint256 proposalId = votingContract.createProposal(
+            "Vote on This",
+            "...",
+            VotingContract.ProposalCategory.PARAMETER_CHANGE,
+            VotingContract.ProposalType.BINARY,
+            new string[](0),
+            "",
+            address(0),
+            0
+        );
 
         vm.prank(voter1);
         votingContract.vote(proposalId, 0);
@@ -113,7 +138,16 @@ contract VotingContractTest is Test {
     function testGas_Resolve_And_Execute_Proposal() public {
         // 1. Create Proposal
         vm.prank(proposer);
-        uint256 proposalId = votingContract.createProposal("Executable Prop", "...", VotingContract.ProposalCategory.EMERGENCY_ACTION, VotingContract.ProposalType.BINARY, new string[](0), "", address(0), 0);
+        uint256 proposalId = votingContract.createProposal(
+            "Executable Prop",
+            "...",
+            VotingContract.ProposalCategory.EMERGENCY_ACTION,
+            VotingContract.ProposalType.BINARY,
+            new string[](0),
+            "",
+            address(0),
+            0
+        );
 
         // 2. Voters vote to ensure it passes
         vm.prank(voter1);
@@ -125,24 +159,33 @@ contract VotingContractTest is Test {
 
         // 3. Fast-forward past voting period
         vm.warp(block.timestamp + votingContract.VOTING_PERIOD() + 1);
-        
+
         // 4. Resolve the proposal
         votingContract.resolveProposal(proposalId);
-        (,,,VotingContract.ProposalState state,,,,) = votingContract.getProposalDetails(proposalId);
+        (,,, VotingContract.ProposalState state,,,,) = votingContract.getProposalDetails(proposalId);
         require(state == VotingContract.ProposalState.SUCCEEDED, "Proposal did not succeed");
 
         // 5. Fast-forward past execution delay
-        (,,,,,,,,uint executionTime,,,,,,,,,) = votingContract.proposals(proposalId);
+        (,,,,,,,, uint256 executionTime,,,,,,,,,) = votingContract.proposals(proposalId);
         vm.warp(executionTime + 1);
 
         // 6. Execute the proposal
         vm.prank(owner); // Owner is an admin
         votingContract.executeProposal(proposalId);
     }
-    
+
     function testGas_CancelProposal() public {
         vm.prank(proposer);
-        uint256 proposalId = votingContract.createProposal("To Be Cancelled", "...", VotingContract.ProposalCategory.PARAMETER_CHANGE, VotingContract.ProposalType.BINARY, new string[](0), "", address(0), 0);
+        uint256 proposalId = votingContract.createProposal(
+            "To Be Cancelled",
+            "...",
+            VotingContract.ProposalCategory.PARAMETER_CHANGE,
+            VotingContract.ProposalType.BINARY,
+            new string[](0),
+            "",
+            address(0),
+            0
+        );
 
         vm.prank(owner); // Admin cancels it
         votingContract.cancelProposal(proposalId);
@@ -152,10 +195,19 @@ contract VotingContractTest is Test {
 
     function testGas_Snapshot_OnStakeAfterProposal() public {
         uint256 initialStake = stakingContract.getStakedAmount(voter1);
-        
+
         // 1. Create a proposal. At this point, voter1 has `initialStake` (100e18) tokens.
         vm.prank(proposer);
-        uint256 proposalId = votingContract.createProposal("Snapshot Test", "...", VotingContract.ProposalCategory.PARAMETER_CHANGE, VotingContract.ProposalType.BINARY, new string[](0), "", address(0), 0);
+        uint256 proposalId = votingContract.createProposal(
+            "Snapshot Test",
+            "...",
+            VotingContract.ProposalCategory.PARAMETER_CHANGE,
+            VotingContract.ProposalType.BINARY,
+            new string[](0),
+            "",
+            address(0),
+            0
+        );
 
         // 2. voter1 stakes *more* tokens. This should trigger a snapshot of their balance *before* this stake.
         vm.prank(voter1);
@@ -164,7 +216,9 @@ contract VotingContractTest is Test {
         // 3. Check voting power. It should be the pre-stake amount, not the new total.
         uint256 votingPower = stakingContract.getVotingPowerForProposal(voter1, proposalId);
         assertEq(votingPower, initialStake, "Voting power should be the snapshotted amount");
-        assertNotEq(votingPower, stakingContract.getStakedAmount(voter1), "Voting power should not be the current amount");
+        assertNotEq(
+            votingPower, stakingContract.getStakedAmount(voter1), "Voting power should not be the current amount"
+        );
 
         // 4. voter1 now votes with their snapshotted power.
         vm.prank(voter1);
@@ -176,7 +230,16 @@ contract VotingContractTest is Test {
 
         // 1. Create a proposal.
         vm.prank(proposer);
-        uint256 proposalId = votingContract.createProposal("Unstake Snapshot", "...", VotingContract.ProposalCategory.PARAMETER_CHANGE, VotingContract.ProposalType.BINARY, new string[](0), "", address(0), 0);
+        uint256 proposalId = votingContract.createProposal(
+            "Unstake Snapshot",
+            "...",
+            VotingContract.ProposalCategory.PARAMETER_CHANGE,
+            VotingContract.ProposalType.BINARY,
+            new string[](0),
+            "",
+            address(0),
+            0
+        );
 
         // 2. voter2 unstakes tokens. This triggers a snapshot of their balance *before* the unstake.
         vm.prank(voter2);
@@ -185,8 +248,10 @@ contract VotingContractTest is Test {
         // 3. Check voting power. It should be the pre-unstake amount.
         uint256 votingPower = stakingContract.getVotingPowerForProposal(voter2, proposalId);
         assertEq(votingPower, initialStake, "Voting power should be the snapshotted amount");
-        assertNotEq(votingPower, stakingContract.getStakedAmount(voter2), "Voting power should not be the current amount");
-        
+        assertNotEq(
+            votingPower, stakingContract.getStakedAmount(voter2), "Voting power should not be the current amount"
+        );
+
         // 4. voter2 votes.
         vm.prank(voter2);
         votingContract.vote(proposalId, 1); // Vote "Against"
@@ -197,7 +262,16 @@ contract VotingContractTest is Test {
 
         // 1. Create a proposal.
         vm.prank(proposer);
-        uint256 proposalId = votingContract.createProposal("Live Balance Vote", "...", VotingContract.ProposalCategory.PARAMETER_CHANGE, VotingContract.ProposalType.BINARY, new string[](0), "", address(0), 0);
+        uint256 proposalId = votingContract.createProposal(
+            "Live Balance Vote",
+            "...",
+            VotingContract.ProposalCategory.PARAMETER_CHANGE,
+            VotingContract.ProposalType.BINARY,
+            new string[](0),
+            "",
+            address(0),
+            0
+        );
 
         // 2. voter3 does NOT interact with the staking contract. They just vote.
         // Their voting power should be their current, live balance because no snapshot was triggered.
@@ -213,5 +287,4 @@ contract VotingContractTest is Test {
         vm.prank(voter1);
         stakingToken.transfer(voter2, 100 ether);
     }
-
 }
