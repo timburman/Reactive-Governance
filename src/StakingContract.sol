@@ -30,6 +30,10 @@ contract StakingContract is Initializable, ReentrancyGuardUpgradeable, IERC165 {
     uint256 public totalProposalCount;
     uint256 public constant MAX_ACTIVE_PROPOSALS = 3;
 
+    // Optimization
+    uint256[] public activeProposalIds;
+    mapping(uint256 => uint256) public activeProposalIndex;
+
     // Unstake Requests
     struct UnstakeRequest {
         uint256 amount;
@@ -132,10 +136,8 @@ contract StakingContract is Initializable, ReentrancyGuardUpgradeable, IERC165 {
         require(stakingToken.allowance(msg.sender, address(this)) >= amount, "Insufficient allowance");
 
         if (isProposalActive) {
-            uint256[] memory activeProposals = getActiveProposalIds();
-
-            for (uint256 i = 0; i < activeProposals.length; i++) {
-                uint256 proposalId = activeProposals[i];
+            for (uint256 i = 0; i < activeProposalIds.length; i++) {
+                uint256 proposalId = activeProposalIds[i];
 
                 if (!userSnapshotTaken[msg.sender][proposalId]) {
                     preProposalBalance[msg.sender][proposalId] = _balances[msg.sender];
@@ -160,10 +162,9 @@ contract StakingContract is Initializable, ReentrancyGuardUpgradeable, IERC165 {
         require(unstakeRequests[msg.sender].length < MAX_UNSTAKE_REQUESTS, "Max unstake requests reached");
 
         if (isProposalActive) {
-            uint256[] memory activeProposals = getActiveProposalIds();
 
-            for (uint256 i = 0; i < activeProposals.length; i++) {
-                uint256 proposalId = activeProposals[i];
+            for (uint256 i = 0; i < activeProposalIds.length; i++) {
+                uint256 proposalId = activeProposalIds[i];
 
                 if (!userSnapshotTaken[msg.sender][proposalId]) {
                     preProposalBalance[msg.sender][proposalId] = _balances[msg.sender];
@@ -490,6 +491,8 @@ contract StakingContract is Initializable, ReentrancyGuardUpgradeable, IERC165 {
         } else {
             activeProposalCount++;
         }
+        activeProposalIndex[proposalId] = activeProposalIds.length;
+        activeProposalIds.push(proposalId);
 
         proposalDetails[proposalId] =
             ProposalDetails({active: true, period: uint32(currentProposalPeriod), reserved: 0});
@@ -507,6 +510,13 @@ contract StakingContract is Initializable, ReentrancyGuardUpgradeable, IERC165 {
 
         proposalDetails[proposalId].active = false;
         activeProposalCount--;
+
+        uint256 indexToRemove = activeProposalIndex[proposalId];
+        uint256 lastProposalId = activeProposalIds[activeProposalIds.length - 1];
+
+        activeProposalIds[indexToRemove] = lastProposalId;
+        activeProposalIndex[lastProposalId] = indexToRemove;
+        activeProposalIds.pop();
 
         if (activeProposalCount == 0) {
             isProposalActive = false;
