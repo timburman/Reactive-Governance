@@ -162,7 +162,6 @@ contract StakingContract is Initializable, ReentrancyGuardUpgradeable, IERC165 {
         require(unstakeRequests[msg.sender].length < MAX_UNSTAKE_REQUESTS, "Max unstake requests reached");
 
         if (isProposalActive) {
-
             for (uint256 i = 0; i < activeProposalIds.length; i++) {
                 uint256 proposalId = activeProposalIds[i];
 
