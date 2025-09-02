@@ -110,7 +110,7 @@ abstract contract ReactiveStaking is ReentrancyGuardUpgradeable {
         uint256 totalAmount = 0;
         uint256 claimedCount = 0;
 
-        for (int256 i = int256(requests.length) - 1; i >= 0; i++) {
+        for (int256 i = int256(requests.length) - 1; i >= 0; i--) {
             UnstakeRequest storage req = requests[uint256(i)];
             bool canClaim = _emergencyMode || (block.timestamp >= req.requestTime + _cooldownPeriod);
 
@@ -125,6 +125,11 @@ abstract contract ReactiveStaking is ReentrancyGuardUpgradeable {
         require(stakingToken.transfer(msg.sender, totalAmount), "Transfer Failed");
 
         emit BatchUnstakeClaimed(msg.sender, totalAmount, claimedCount);
+    }
+
+    function setCooldownPeriod(uint256 cooldown) public virtual {
+        require(cooldown >= MIN_COOLDOWN && cooldown <= MAX_COOLDOWN, "Cooldown out of range");
+        _cooldownPeriod = cooldown;
     }
 
     // -- Internal Core Logic --
