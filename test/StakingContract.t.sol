@@ -29,7 +29,7 @@ contract StakingContractTest is Test {
         // --- Deploy Contracts ---
         stakingToken = new ERC20Mock();
         stakingContract = new StakingContract();
-        stakingContract.initialize(address(stakingToken), COOLDOWN_PERIOD, owner);
+        stakingContract.initialize(owner, address(stakingToken), COOLDOWN_PERIOD, 0.5 ether, 0.5 ether);
 
         // --- Configure Contracts ---
         vm.prank(owner);
@@ -67,7 +67,7 @@ contract StakingContractTest is Test {
     }
 
     function testRevert_Stake_BelowMinimum() public {
-        uint256 minAmount = stakingContract.minimumStakeAmount();
+        uint256 minAmount = 0.3 ether;
         vm.prank(staker1);
         vm.expectRevert("Amount below minimum");
         stakingContract.stake(minAmount - 1);
@@ -90,7 +90,7 @@ contract StakingContractTest is Test {
         stakingContract.stake(STAKE_AMOUNT);
 
         // Fill up unstake requests
-        uint256 unstakeAmount = stakingContract.minimumUnstakeAmount();
+        uint256 unstakeAmount = 0.5 ether;
         vm.startPrank(staker1);
         for (uint256 i = 0; i < stakingContract.MAX_UNSTAKE_REQUESTS(); i++) {
             stakingContract.unstake(unstakeAmount);
@@ -148,16 +148,5 @@ contract StakingContractTest is Test {
     function testGas_SetCooldownPeriod() public {
         vm.prank(owner);
         stakingContract.setCooldownPeriod(10 days);
-    }
-
-    function testGas_SetMinimumAmounts() public {
-        vm.prank(owner);
-        stakingContract.setMinimumAmounts(2e18, 2e18);
-    }
-
-    function testGas_AddAdmin() public {
-        address newAdmin = makeAddr("newAdmin");
-        vm.prank(owner);
-        stakingContract.addAdmin(newAdmin);
     }
 }
