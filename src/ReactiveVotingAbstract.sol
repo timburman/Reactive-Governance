@@ -3,7 +3,7 @@ pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
-import "./ReactiveStaking.sol";
+import "./ReactiveStakingAbstract.sol";
 
 /**
  * @title ReactiveVoting
@@ -153,7 +153,6 @@ abstract contract ReactiveVoting is Initializable, ReentrancyGuardUpgradeable {
     }
 
     function executeProposal(uint256 proposalId) public virtual nonReentrant {
-        // Access control (e.g., onlyAdmin) should be added in the implementation contract.
         _execute(proposalId);
     }
 
@@ -374,6 +373,40 @@ abstract contract ReactiveVoting is Initializable, ReentrancyGuardUpgradeable {
             votingPower = p.userVotingPower[user];
         } else {
             votingPower = _stakingContract.getVotingPowerForProposal(user, proposalId);
+        }
+    }
+
+    function getActiveProposals() external view returns (uint256[] memory activeIds) {
+        uint256[] memory tempIds = new uint256[](_proposalCounter);
+        uint256 count = 0;
+
+        for (uint256 i = 1; i <= _proposalCounter; i++) {
+            if (_proposals[i].state == ProposalState.ACTIVE) {
+                tempIds[count] = i;
+                count++;
+            }
+        }
+
+        activeIds = new uint256[](count);
+        for (uint256 i = 0; i < count; i++) {
+            activeIds[i] = tempIds[i];
+        }
+    }
+
+    function getProposalsByState(ProposalState state) external view returns (uint256[] memory proposalIds) {
+        uint256[] memory tempIds = new uint256[](_proposalCounter);
+        uint256 count = 0;
+
+        for (uint256 i = 1; i <= _proposalCounter; i++) {
+            if (_proposals[i].state == state) {
+                tempIds[count] = i;
+                count++;
+            }
+        }
+
+        proposalIds = new uint256[](count);
+        for (uint256 i = 0; i < count; i++) {
+            proposalIds[i] = tempIds[i];
         }
     }
 }
