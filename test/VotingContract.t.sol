@@ -3,6 +3,7 @@ pragma solidity ^0.8.19;
 
 import "forge-std/Test.sol";
 import "../src/VotingContract.sol";
+import "../src/ReactiveVotingAbstract.sol";
 import "../src/StakingContract.sol";
 import "openzeppelin-contracts/contracts/mocks/token/ERC20Mock.sol";
 
@@ -32,17 +33,16 @@ contract VotingContractTest is Test {
         stakingToken = new ERC20Mock();
 
         stakingContract = new StakingContract();
-        stakingContract.initialize(address(stakingToken), 7 days, owner);
+        stakingContract.initialize(owner, address(stakingToken), 7 days, 0.5 ether, 0.5 ether);
 
         votingContract = new VotingContract();
-        votingContract.initialize(address(stakingContract), proposalManager, owner);
+        votingContract.initialize(owner, address(stakingContract));
 
         vm.prank(owner);
         stakingContract.setVotingContract(address(votingContract));
 
         vm.startPrank(owner);
         votingContract.addAuthorizedProposer(proposer);
-        votingContract.addAdmin(owner);
         vm.stopPrank();
 
         address[] memory voters = new address[](3);
@@ -66,8 +66,8 @@ contract VotingContractTest is Test {
         votingContract.createProposal(
             "Test Proposal",
             "A binary choice.",
-            VotingContract.ProposalCategory.PARAMETER_CHANGE,
-            VotingContract.ProposalType.BINARY,
+            ReactiveVoting.ProposalCategory.PARAMETER_CHANGE,
+            ReactiveVoting.ProposalType.BINARY,
             new string[](0),
             "",
             address(0),
@@ -86,8 +86,8 @@ contract VotingContractTest is Test {
         votingContract.createProposal(
             "Multi-Choice",
             "Many options.",
-            VotingContract.ProposalCategory.GOVERNANCE_CHANGE,
-            VotingContract.ProposalType.MULTICHOICE,
+            ReactiveVoting.ProposalCategory.GOVERNANCE_CHANGE,
+            ReactiveVoting.ProposalType.MULTICHOICE,
             choices,
             "",
             address(0),
@@ -101,8 +101,8 @@ contract VotingContractTest is Test {
         uint256 proposalId = votingContract.createProposal(
             "Vote on This",
             "...",
-            VotingContract.ProposalCategory.PARAMETER_CHANGE,
-            VotingContract.ProposalType.BINARY,
+            ReactiveVoting.ProposalCategory.PARAMETER_CHANGE,
+            ReactiveVoting.ProposalType.BINARY,
             new string[](0),
             "",
             address(0),
@@ -119,8 +119,8 @@ contract VotingContractTest is Test {
         uint256 proposalId = votingContract.createProposal(
             "Vote on This",
             "...",
-            VotingContract.ProposalCategory.PARAMETER_CHANGE,
-            VotingContract.ProposalType.BINARY,
+            ReactiveVoting.ProposalCategory.PARAMETER_CHANGE,
+            ReactiveVoting.ProposalType.BINARY,
             new string[](0),
             "",
             address(0),
@@ -141,8 +141,8 @@ contract VotingContractTest is Test {
         uint256 proposalId = votingContract.createProposal(
             "Executable Prop",
             "...",
-            VotingContract.ProposalCategory.EMERGENCY_ACTION,
-            VotingContract.ProposalType.BINARY,
+            ReactiveVoting.ProposalCategory.EMERGENCY_ACTION,
+            ReactiveVoting.ProposalType.BINARY,
             new string[](0),
             "",
             address(0),
@@ -162,11 +162,12 @@ contract VotingContractTest is Test {
 
         // 4. Resolve the proposal
         votingContract.resolveProposal(proposalId);
-        (,,, VotingContract.ProposalState state,,,,) = votingContract.getProposalDetails(proposalId);
-        require(state == VotingContract.ProposalState.SUCCEEDED, "Proposal did not succeed");
+        ReactiveVoting.ProposalMinimal memory p = votingContract.getProposalDetails(proposalId);
+        ReactiveVoting.ProposalState state = p.state;
+        require(state == ReactiveVoting.ProposalState.SUCCEEDED, "Proposal did not succeed");
 
         // 5. Fast-forward past execution delay
-        (,,,,,,,, uint256 executionTime,,,,,,,,,) = votingContract.proposals(proposalId);
+        uint256 executionTime = p.executionTime;
         vm.warp(executionTime + 1);
 
         // 6. Execute the proposal
@@ -179,8 +180,8 @@ contract VotingContractTest is Test {
         uint256 proposalId = votingContract.createProposal(
             "To Be Cancelled",
             "...",
-            VotingContract.ProposalCategory.PARAMETER_CHANGE,
-            VotingContract.ProposalType.BINARY,
+            ReactiveVoting.ProposalCategory.PARAMETER_CHANGE,
+            ReactiveVoting.ProposalType.BINARY,
             new string[](0),
             "",
             address(0),
@@ -201,8 +202,8 @@ contract VotingContractTest is Test {
         uint256 proposalId = votingContract.createProposal(
             "Snapshot Test",
             "...",
-            VotingContract.ProposalCategory.PARAMETER_CHANGE,
-            VotingContract.ProposalType.BINARY,
+            ReactiveVoting.ProposalCategory.PARAMETER_CHANGE,
+            ReactiveVoting.ProposalType.BINARY,
             new string[](0),
             "",
             address(0),
@@ -233,8 +234,8 @@ contract VotingContractTest is Test {
         uint256 proposalId = votingContract.createProposal(
             "Unstake Snapshot",
             "...",
-            VotingContract.ProposalCategory.PARAMETER_CHANGE,
-            VotingContract.ProposalType.BINARY,
+            ReactiveVoting.ProposalCategory.PARAMETER_CHANGE,
+            ReactiveVoting.ProposalType.BINARY,
             new string[](0),
             "",
             address(0),
@@ -265,8 +266,8 @@ contract VotingContractTest is Test {
         uint256 proposalId = votingContract.createProposal(
             "Live Balance Vote",
             "...",
-            VotingContract.ProposalCategory.PARAMETER_CHANGE,
-            VotingContract.ProposalType.BINARY,
+            ReactiveVoting.ProposalCategory.PARAMETER_CHANGE,
+            ReactiveVoting.ProposalType.BINARY,
             new string[](0),
             "",
             address(0),
