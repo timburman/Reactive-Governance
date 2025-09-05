@@ -83,6 +83,30 @@ abstract contract ReactiveVoting is Initializable, ReentrancyGuardUpgradeable {
         mapping(address => uint256) userVotingPower;
     }
 
+    struct ProposalMinimal {
+        uint256 id;
+        string title;
+        string description;
+        ProposalCategory category;
+        ProposalType proposalType;
+        address proposer;
+        uint256 creationTime;
+        uint256 votingEnd;
+        uint256 executionTime;
+        uint256 gracePeriodEnd;
+        string[] choices;
+        uint256 totalVotes;
+        uint256[] voteCounts;
+        ProposalState state;
+        uint256 quorumRequired; // In basis pointis, e.g., 1000 for 10%
+        uint256 approvalRequired; // In percentage, e.g., 51 for 51%
+        bytes executionData;
+        address target;
+        uint256 value;
+        uint256 totalStakedSnapshot;
+        uint256 winningChoiceIndex;
+    }
+
     // -- Mappings --
     mapping(uint256 => Proposal) internal _proposals;
     mapping(ProposalCategory => ProposalRequirements) internal _categoryRequirements;
@@ -213,7 +237,7 @@ abstract contract ReactiveVoting is Initializable, ReentrancyGuardUpgradeable {
 
         if (proposalType == ProposalType.BINARY) {
             p.choices = ["For", "Against", "Abstrain"];
-            p.voteCounts = new uint256[](choices.length);
+            p.voteCounts = new uint256[](p.choices.length);
         } else {
             p.choices = choices;
             p.voteCounts = new uint256[](choices.length);
@@ -327,36 +351,31 @@ abstract contract ReactiveVoting is Initializable, ReentrancyGuardUpgradeable {
 
     // -- View Functions --
 
-    function getProposalDetails(uint256 proposalId)
-        public
-        view
-        virtual
-        returns (
-            uint256 id,
-            string memory title,
-            string memory description,
-            address proposer,
-            ProposalState state,
-            uint256 votingEnd,
-            uint256 totalVotes,
-            string[] memory choices,
-            uint256[] memory voteCounts,
-            uint256 winningChoiceIndex
-        )
-    {
+    function getProposalDetails(uint256 proposalId) public view virtual returns (ProposalMinimal memory) {
         Proposal storage p = _proposals[proposalId];
-        return (
-            p.id,
-            p.title,
-            p.description,
-            p.proposer,
-            p.state,
-            p.votingEnd,
-            p.totalVotes,
-            p.choices,
-            p.voteCounts,
-            p.winningChoiceIndex
-        );
+        return ProposalMinimal({
+            id: p.id,
+            title: p.title,
+            description: p.description,
+            category: p.category,
+            proposalType: p.proposalType,
+            proposer: p.proposer,
+            creationTime: p.creationTime,
+            votingEnd: p.votingEnd,
+            executionTime: p.executionTime,
+            gracePeriodEnd: p.gracePeriodEnd,
+            choices: p.choices,
+            totalVotes: p.totalVotes,
+            voteCounts: p.voteCounts,
+            state: p.state,
+            quorumRequired: p.quorumRequired, // In basis pointis, e.g., 1000 for 10%
+            approvalRequired: p.approvalRequired, // In percentage, e.g., 51 for 51%
+            executionData: p.executionData,
+            target: p.target,
+            value: p.value,
+            totalStakedSnapshot: p.totalStakedSnapshot,
+            winningChoiceIndex: p.winningChoiceIndex
+        });
     }
 
     function getUserVoteInfo(uint256 proposalId, address user)
