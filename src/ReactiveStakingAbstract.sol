@@ -64,6 +64,7 @@ abstract contract ReactiveStaking is ReentrancyGuardUpgradeable {
     event ProposalEnded(uint256 indexed proposalId);
     event UserSnapshottedForProposal(address indexed user, uint256 balance, uint256 indexed proposalId);
     event VotingContractUpdated(address indexed newVotingContract);
+    event EmergencyModeUpdated(bool enabled);
 
     // -- Modifiers --
     modifier onlyVotingContract() {
@@ -276,6 +277,11 @@ abstract contract ReactiveStaking is ReentrancyGuardUpgradeable {
     function setVotingContract(address votingContractAddress) public virtual {
         _votingContract = votingContractAddress;
         emit VotingContractUpdated(votingContractAddress);
+    }
+
+    function setEmergencyMode(bool enabled) public virtual {
+        _emergencyMode = enabled;
+        emit EmergencyModeUpdated(enabled);
     }
 
     // -- Internal Helper
