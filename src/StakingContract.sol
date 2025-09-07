@@ -29,4 +29,8 @@ contract StakingContract is Initializable, ReactiveStaking, OwnableUpgradeable {
     function setCooldownPeriod(uint256 cooldown) public override onlyOwner {
         super.setCooldownPeriod(cooldown);
     }
+
+    function setEmergencyMode(bool enabled) public override onlyOwner {
+        super.setEmergencyMode(enabled);
+    }
 }
