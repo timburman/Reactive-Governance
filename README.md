@@ -73,5 +73,5 @@ This work is licensed under a Creative Commons Attribution 4.0 International Lic
 ## Citation
 If you use this work in your research, please cite it as follows:
 ```
-A. Kaushik, "Reactive Governance: An On-Demand Snapshotting Framework for Secure DAOS," [Online]. Available: [Link to your Paragraph article or PDF], 2025.
+A. Kaushik, "Reactive Governance: An On-Demand Snapshotting Framework for Secure DAOS,", 2025.
 ```
