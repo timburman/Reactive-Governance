@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import "forge-std/Test.sol";
-import "../src/VotingContract.sol";
-import "../src/ReactiveVotingAbstract.sol";
-import "../src/StakingContract.sol";
-import "openzeppelin-contracts/contracts/mocks/token/ERC20Mock.sol";
+import {Test} from "forge-std/Test.sol";
+import {VotingContract} from "../src/VotingContract.sol";
+import {ReactiveVoting} from "../src/ReactiveVotingAbstract.sol";
+import {StakingContract} from "../src/StakingContract.sol";
+import {ERC20Mock} from "openzeppelin-contracts/contracts/mocks/token/ERC20Mock.sol";
 
 contract VotingContractTest is Test {
     StakingContract public stakingContract;
@@ -286,6 +286,7 @@ contract VotingContractTest is Test {
 
     function testGas_transfer() public {
         vm.prank(voter1);
-        stakingToken.transfer(voter2, 100 ether);
+        bool s = stakingToken.transfer(voter2, 100 ether);
+        assertTrue(s);
     }
 }
