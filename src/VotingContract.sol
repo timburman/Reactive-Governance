@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {ReactiveVoting} from "./ReactiveVotingAbstract.sol";
 
-contract VotingContract is Initializable, ReactiveVoting, OwnableUpgradeable {
+contract VotingContract is ReactiveVoting, Ownable {
     mapping(address => bool) internal _authorizedProposers;
 
     // -- Events --
@@ -25,11 +24,7 @@ contract VotingContract is Initializable, ReactiveVoting, OwnableUpgradeable {
         );
     }
 
-    function initialize(address initialOwner, address stakingContract) public initializer {
-        __Ownable_init(initialOwner);
-        __ReentrancyGuard_init();
-        _initializeReactiveVoting(stakingContract);
-    }
+    constructor(address initialOwner, address stakingContract) Ownable(initialOwner) ReactiveVoting(stakingContract) {}
 
     function createProposal(
         string memory title,
