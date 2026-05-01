@@ -6,6 +6,7 @@ import {VotingContract} from "../src/VotingContract.sol";
 import {ReactiveVoting} from "../src/ReactiveVotingAbstract.sol";
 import {StakingContract} from "../src/StakingContract.sol";
 import {ERC20Mock} from "openzeppelin-contracts/contracts/mocks/token/ERC20Mock.sol";
+import {console} from "forge-std/console.sol";
 
 contract ReactiveGovernanceTest is Test {
     StakingContract public stakingContract;
@@ -67,6 +68,8 @@ contract ReactiveGovernanceTest is Test {
 
     function testGas_CreateProposal_Binary() public {
         vm.prank(proposer);
+
+        uint256 gasStart = gasleft();
         votingContract.createProposal(
             "Test Proposal",
             "A binary choice.",
@@ -77,6 +80,8 @@ contract ReactiveGovernanceTest is Test {
             address(0),
             0
         );
+        uint256 gasUsed = gasStart - gasleft();
+        console.log("Isolated Gas - Create Binary Proposal:", gasUsed);
     }
 
     function testGas_CreateProposal_MultiChoice() public {
@@ -113,7 +118,10 @@ contract ReactiveGovernanceTest is Test {
         );
 
         vm.prank(voter1);
+        uint256 gasStart = gasleft();
         votingContract.vote(proposalId, 0);
+        uint256 gasUsed = gasStart - gasleft();
+        console.log("Isolated Gas - Normal Vote:", gasUsed);
     }
 
     function testRevert_Vote_Twice() public {
@@ -159,14 +167,21 @@ contract ReactiveGovernanceTest is Test {
 
         vm.warp(block.timestamp + votingContract.VOTING_PERIOD() + 1);
 
+        uint256 resolveStart = gasleft();
         votingContract.resolveProposal(proposalId);
+        uint256 resolveUsed = resolveStart - gasleft();
+        console.log("Isolated Gas - Resolve Proposal:", resolveUsed);
+
         ReactiveVoting.ProposalMinimal memory p = votingContract.getProposalDetails(proposalId);
         require(p.state == ReactiveVoting.ProposalState.SUCCEEDED, "Proposal did not succeed");
 
         vm.warp(p.executionTime + 1);
 
         vm.prank(owner);
+        uint256 execStart = gasleft();
         votingContract.executeProposal(proposalId);
+        uint256 execUsed = execStart - gasleft();
+        console.log("Isolated Gas - Execute Proposal:", execUsed);
     }
 
     function testGas_CancelProposal() public {
@@ -204,7 +219,10 @@ contract ReactiveGovernanceTest is Test {
         );
 
         vm.prank(voter1);
+        uint256 stakeStart = gasleft();
         stakingContract.stake(50e18);
+        uint256 stakeUsed = stakeStart - gasleft();
+        console.log("Isolated Gas - Stake w/ Snapshot (Active Proposal):", stakeUsed);
 
         uint256 votingPower = stakingContract.getVotingPowerForProposal(voter1, proposalId);
         assertEq(votingPower, initialStake, "Voting power should be the snapshotted amount");
@@ -229,7 +247,10 @@ contract ReactiveGovernanceTest is Test {
         );
 
         vm.prank(voter2);
+        uint256 unstakeStart = gasleft();
         stakingContract.unstake(50e18);
+        uint256 unstakeUsed = unstakeStart - gasleft();
+        console.log("Isolated Gas - Unstake w/ Snapshot (Active Proposal):", unstakeUsed);
 
         uint256 votingPower = stakingContract.getVotingPowerForProposal(voter2, proposalId);
         assertEq(votingPower, initialStake, "Voting power should be the snapshotted amount");
@@ -264,7 +285,10 @@ contract ReactiveGovernanceTest is Test {
 
     function testGas_Stake_Success() public {
         vm.prank(staker1);
+        uint256 gasStart = gasleft();
         stakingContract.stake(STAKE_AMOUNT);
+        uint256 gasUsed = gasStart - gasleft();
+        console.log("Isolated Gas - Normal Stake:", gasUsed);
     }
 
     function testRevert_Stake_BelowMinimum() public {
@@ -276,7 +300,10 @@ contract ReactiveGovernanceTest is Test {
 
     function testGas_Unstake_Success() public {
         vm.prank(voter1);
+        uint256 gasStart = gasleft();
         stakingContract.unstake(STAKE_AMOUNT / 2);
+        uint256 gasUsed = gasStart - gasleft();
+        console.log("Isolated Gas - Normal Unstake:", gasUsed);
     }
 
     function testRevert_Unstake_MaxRequests() public {
@@ -387,5 +414,11 @@ contract ReactiveGovernanceTest is Test {
         // Claim immediately without waiting for cooldown
         vm.prank(voter1);
         stakingContract.claimUnstake(0);
+    }
+
+    function testGas_transfer() public {
+        vm.prank(voter1);
+        bool s = stakingToken.transfer(voter2, 10 ether);
+        assertTrue(s);
     }
 }
