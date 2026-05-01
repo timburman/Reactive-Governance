@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {Test, Vm} from "forge-std/Test.sol";
+import {Test} from "forge-std/Test.sol";
 import {MyToken} from "../src/Token.sol";
-import {console} from "forge-std/console.sol";
 
 contract MyTokenTest is Test {
     MyToken public token;
@@ -29,14 +28,16 @@ contract MyTokenTest is Test {
 
         // Give user2 some tokens to test transfers from a non-owner
         vm.prank(user1);
-        token.transfer(user2, 100e18);
+        bool s0 = token.transfer(user2, 100e18);
+        assertTrue(s0);
     }
 
     // --- Gas Report for Successful Operations ---
 
     function testGas_Transfer_Success() public {
         vm.prank(user1);
-        token.transfer(user2, 10e18);
+        bool s1 = token.transfer(user2, 10e18);
+        assertTrue(s1);
     }
 
     function testGas_Approve_Success() public {
@@ -51,7 +52,8 @@ contract MyTokenTest is Test {
 
         // user2 spends the allowance
         vm.prank(user2);
-        token.transferFrom(user1, user2, 20e18);
+        bool s2 = token.transferFrom(user1, user2, 20e18);
+        assertTrue(s2);
     }
 
     function testGas_Delegate_FirstTime() public {
@@ -80,12 +82,14 @@ contract MyTokenTest is Test {
     function testGas_Transfer_FullBalance() public {
         uint256 balance = token.balanceOf(user2);
         vm.prank(user2);
-        token.transfer(user1, balance);
+        bool s3 = token.transfer(user1, balance);
+        assertTrue(s3);
     }
 
     function testGas_Transfer_ZeroTokens() public {
         vm.prank(user1);
-        token.transfer(user2, 0);
+        bool s4 = token.transfer(user2, 0);
+        assertTrue(s4);
     }
 
     function testGas_Approve_MaxUint() public {
@@ -110,7 +114,8 @@ contract MyTokenTest is Test {
         vm.prank(user1);
         // user1 tries to send more than they have
         vm.expectRevert();
-        token.transfer(user2, INITIAL_MINT_AMOUNT + 1);
+        bool s5 = token.transfer(user2, INITIAL_MINT_AMOUNT + 1);
+        assertFalse(s5);
     }
 
     function testRevert_TransferFrom_InsufficientAllowance() public {
@@ -121,7 +126,8 @@ contract MyTokenTest is Test {
         // user2 tries to spend 51 tokens
         vm.prank(user2);
         vm.expectRevert();
-        token.transferFrom(user1, owner, 51e18);
+        bool s6 = token.transferFrom(user1, owner, 51e18);
+        assertFalse(s6);
     }
 
     function testRevert_Mint_NotOwner() public {
