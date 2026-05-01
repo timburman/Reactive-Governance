@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
+import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import {ReactiveStaking} from "./ReactiveStakingAbstract.sol";
 
 /**
@@ -11,7 +10,7 @@ import {ReactiveStaking} from "./ReactiveStakingAbstract.sol";
  * @dev This contract provides the core logic for proposal creation, voting, resolution, and execution.
  * It is designed to be inherited. Core functions are `internal virtual` to allow for customizations.
  */
-abstract contract ReactiveVoting is Initializable, ReentrancyGuardUpgradeable {
+abstract contract ReactiveVoting is ReentrancyGuard {
     // -- Stake Variables --
 
     /// @notice The instance of the ReactiveStaking contrract that manages balances and voting power
@@ -125,12 +124,11 @@ abstract contract ReactiveVoting is Initializable, ReentrancyGuardUpgradeable {
     event ProposalResolved(uint256 proposalId, ProposalState state, uint256 winningChoiceIndex);
 
     /**
-     * @dev Initializes the contract. To be called from the child contract's initializer
+     * @dev Initializes the contract.
      * @param stakingContractAddress The address of the deployed ReactiveStaking contract
      */
-    function _initializeReactiveVoting(address stakingContractAddress) internal {
+    constructor(address stakingContractAddress) {
         require(stakingContractAddress != address(0), "Invalid Staking Contract");
-        __ReentrancyGuard_init();
         _stakingContract = ReactiveStaking(stakingContractAddress);
         _setDefaultRequirements();
     }
