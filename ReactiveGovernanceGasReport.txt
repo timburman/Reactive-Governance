@@ -1,4 +1,6 @@
-No files changed, compilation skipped
+Compiling 1 files with Solc 0.8.30
+Solc 0.8.30 finished in 3.95s
+Compiler run successful!
 
 Ran 13 tests for test/Token.t.sol:MyTokenTest
 [PASS] testGas_Approve_ChangeValue() (gas: 89378)
@@ -14,30 +16,31 @@ Ran 13 tests for test/Token.t.sol:MyTokenTest
 [PASS] testRevert_Mint_NotOwner() (gas: 35661)
 [PASS] testRevert_TransferFrom_InsufficientAllowance() (gas: 87862)
 [PASS] testRevert_Transfer_InsufficientBalance() (gas: 38238)
-Suite result: ok. 13 passed; 0 failed; 0 skipped; finished in 1.59ms (1.52ms CPU time)
+Suite result: ok. 13 passed; 0 failed; 0 skipped; finished in 4.18ms (4.73ms CPU time)
 
-Ran 20 tests for test/ReactiveGovernance.t.sol:ReactiveGovernanceTest
+Ran 21 tests for test/ReactiveGovernance.t.sol:ReactiveGovernanceTest
 [PASS] testGas_CancelProposal() (gas: 686894)
 [PASS] testGas_ClaimAllReady_Success() (gas: 258244)
 [PASS] testGas_ClaimUnstake_Success() (gas: 160068)
 [PASS] testGas_CreateProposal_Binary() (gas: 635906)
 [PASS] testGas_CreateProposal_MultiChoice() (gas: 666773)
 [PASS] testGas_EmergencyMode_ClaimUnstake() (gas: 208032)
-[PASS] testGas_Resolve_And_Execute_Proposal() (gas: 1167942)
-[PASS] testGas_Resolve_EmergencyAction() (gas: 845228)
+[PASS] testGas_Resolve_And_Execute_Proposal() (gas: 1167964)
+[PASS] testGas_Resolve_EmergencyAction() (gas: 845250)
 [PASS] testGas_SetCooldownPeriod() (gas: 39389)
 [PASS] testGas_Snapshot_OnStakeAfterProposal() (gas: 918299)
 [PASS] testGas_Snapshot_OnUnstakeAfterProposal() (gas: 985665)
 [PASS] testGas_Snapshot_VoteWithLiveBalance() (gas: 805642)
 [PASS] testGas_Stake_Success() (gas: 87676)
-[PASS] testGas_Unstake_Success() (gas: 118280)
+[PASS] testGas_Unstake_Success() (gas: 118302)
 [PASS] testGas_Vote_MultiChoice_MaxOptions() (gas: 996209)
 [PASS] testGas_Vote_Success() (gas: 776452)
+[PASS] testGas_transfer() (gas: 47854)
 [PASS] testRevert_ClaimUnstake_CooldownNotPassed() (gas: 155486)
 [PASS] testRevert_Stake_BelowMinimum() (gas: 40046)
 [PASS] testRevert_Unstake_MaxRequests() (gas: 359668)
-[PASS] testRevert_Vote_Twice() (gas: 814190)
-Suite result: ok. 20 passed; 0 failed; 0 skipped; finished in 2.34ms (3.59ms CPU time)
+[PASS] testRevert_Vote_Twice() (gas: 814212)
+Suite result: ok. 21 passed; 0 failed; 0 skipped; finished in 5.29ms (4.92ms CPU time)
 
 ╭-----------------------------------------------------------------------------------+-----------------+-------+--------+-------+---------╮
 | lib/openzeppelin-contracts/contracts/mocks/token/ERC20Mock.sol:ERC20Mock Contract |                 |       |        |       |         |
@@ -50,13 +53,15 @@ Suite result: ok. 20 passed; 0 failed; 0 skipped; finished in 2.34ms (3.59ms CPU
 |-----------------------------------------------------------------------------------+-----------------+-------+--------+-------+---------|
 | Function Name                                                                     | Min             | Avg   | Median | Max   | # Calls |
 |-----------------------------------------------------------------------------------+-----------------+-------+--------+-------+---------|
-| allowance                                                                         | 2790            | 2790  | 2790   | 2790  | 62      |
+| allowance                                                                         | 2790            | 2790  | 2790   | 2790  | 65      |
 |-----------------------------------------------------------------------------------+-----------------+-------+--------+-------+---------|
-| approve                                                                           | 46269           | 46269 | 46269  | 46269 | 80      |
+| approve                                                                           | 46269           | 46269 | 46269  | 46269 | 84      |
 |-----------------------------------------------------------------------------------+-----------------+-------+--------+-------+---------|
-| balanceOf                                                                         | 2537            | 2537  | 2537   | 2537  | 62      |
+| balanceOf                                                                         | 2537            | 2537  | 2537   | 2537  | 65      |
 |-----------------------------------------------------------------------------------+-----------------+-------+--------+-------+---------|
-| mint                                                                              | 51009           | 55284 | 51009  | 68109 | 80      |
+| mint                                                                              | 51009           | 55284 | 51009  | 68109 | 84      |
+|-----------------------------------------------------------------------------------+-----------------+-------+--------+-------+---------|
+| transfer                                                                          | 34184           | 34184 | 34184  | 34184 | 1       |
 ╰-----------------------------------------------------------------------------------+-----------------+-------+--------+-------+---------╯
 
 ╭--------------------------------------------------+-----------------+--------+--------+--------+---------╮
@@ -84,9 +89,9 @@ Suite result: ok. 20 passed; 0 failed; 0 skipped; finished in 2.34ms (3.59ms CPU
 |--------------------------------------------------+-----------------+--------+--------+--------+---------|
 | setEmergencyMode                                 | 47019           | 47019  | 47019  | 47019  | 1       |
 |--------------------------------------------------+-----------------+--------+--------+--------+---------|
-| setVotingContract                                | 47331           | 47331  | 47331  | 47331  | 20      |
+| setVotingContract                                | 47331           | 47331  | 47331  | 47331  | 21      |
 |--------------------------------------------------+-----------------+--------+--------+--------+---------|
-| stake                                            | 28989           | 90588  | 79998  | 114208 | 63      |
+| stake                                            | 28989           | 90625  | 79998  | 114208 | 66      |
 |--------------------------------------------------+-----------------+--------+--------+--------+---------|
 | totalStaked                                      | 2424            | 2424   | 2424   | 2424   | 11      |
 |--------------------------------------------------+-----------------+--------+--------+--------+---------|
@@ -130,7 +135,7 @@ Suite result: ok. 20 passed; 0 failed; 0 skipped; finished in 2.34ms (3.59ms CPU
 |------------------------------------------------+-----------------+--------+--------+--------+---------|
 | VOTING_PERIOD                                  | 367             | 367    | 367    | 367    | 2       |
 |------------------------------------------------+-----------------+--------+--------+--------+---------|
-| addAuthorizedProposer                          | 47179           | 47179  | 47179  | 47179  | 20      |
+| addAuthorizedProposer                          | 47179           | 47179  | 47179  | 47179  | 21      |
 |------------------------------------------------+-----------------+--------+--------+--------+---------|
 | cancelProposal                                 | 64579           | 64579  | 64579  | 64579  | 1       |
 |------------------------------------------------+-----------------+--------+--------+--------+---------|
@@ -146,4 +151,4 @@ Suite result: ok. 20 passed; 0 failed; 0 skipped; finished in 2.34ms (3.59ms CPU
 ╰------------------------------------------------+-----------------+--------+--------+--------+---------╯
 
 
-Ran 2 test suites in 7.80ms (3.93ms CPU time): 33 tests passed, 0 failed, 0 skipped (33 total tests)
+Ran 2 test suites in 13.77ms (9.47ms CPU time): 34 tests passed, 0 failed, 0 skipped (34 total tests)
