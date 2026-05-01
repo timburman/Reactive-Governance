@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 abstract contract ReactiveStaking is ReentrancyGuardUpgradeable {
     // -- State Variables --
@@ -68,8 +68,12 @@ abstract contract ReactiveStaking is ReentrancyGuardUpgradeable {
 
     // -- Modifiers --
     modifier onlyVotingContract() {
-        require(msg.sender == _votingContract, "Only Voting Contract");
+        _onlyVotingContract();
         _;
+    }
+
+    function _onlyVotingContract() internal view {
+        require(msg.sender == _votingContract, "Only Voting Contract");
     }
 
     /**
@@ -112,12 +116,16 @@ abstract contract ReactiveStaking is ReentrancyGuardUpgradeable {
         uint256 claimedCount = 0;
 
         for (int256 i = int256(requests.length) - 1; i >= 0; i--) {
+            // casting to 'uint256' is safe because i >= 0
+            // forge-lint: disable-next-line(unsafe-typecast)
             UnstakeRequest storage req = requests[uint256(i)];
             bool canClaim = _emergencyMode || (block.timestamp >= req.requestTime + _cooldownPeriod);
 
             if (canClaim) {
                 totalAmount += req.amount;
                 claimedCount++;
+                // casting to 'uint256' is safe because i >= 0
+                // forge-lint: disable-next-line(unsafe-typecast)
                 _removeRequestByIndex(msg.sender, uint256(i));
             }
         }
