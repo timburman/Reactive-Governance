@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import "./ReactiveVotingAbstract.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import {ReactiveVoting} from "./ReactiveVotingAbstract.sol";
 
 contract VotingContract is Initializable, ReactiveVoting, OwnableUpgradeable {
     mapping(address => bool) internal _authorizedProposers;
@@ -14,11 +14,15 @@ contract VotingContract is Initializable, ReactiveVoting, OwnableUpgradeable {
 
     // -- Modifiers --
     modifier onlyAuthorizedProposer() {
+        _onlyAuthorizedProposer();
+        _;
+    }
+
+    function _onlyAuthorizedProposer() internal view {
         require(
             _authorizedProposers[msg.sender] || msg.sender == owner(),
             "ASRVotingContract: Caller is not an authorized proposer"
         );
-        _;
     }
 
     function initialize(address initialOwner, address stakingContract) public initializer {
