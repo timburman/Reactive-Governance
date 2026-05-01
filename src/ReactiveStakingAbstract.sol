@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
+import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-abstract contract ReactiveStaking is ReentrancyGuardUpgradeable {
+abstract contract ReactiveStaking is ReentrancyGuard {
     // -- State Variables --
 
     /// @notice The ERC20 token for staking
@@ -77,17 +77,11 @@ abstract contract ReactiveStaking is ReentrancyGuardUpgradeable {
     }
 
     /**
-     * @dev Initializes the contract. To be called from the child contact's initializer
+     * @dev Initializes the contract.
      */
-    function _initializeReactiveStaking(
-        address stakingTokenAddress,
-        uint256 cooldown,
-        uint256 minStake,
-        uint256 minUnstake
-    ) internal {
+    constructor(address stakingTokenAddress, uint256 cooldown, uint256 minStake, uint256 minUnstake) {
         require(stakingTokenAddress != address(0), "Invalid Token");
         require(cooldown >= MIN_COOLDOWN && cooldown <= MAX_COOLDOWN, "Cooldown out of range");
-        __ReentrancyGuard_init();
         stakingToken = IERC20(stakingTokenAddress);
         _cooldownPeriod = cooldown;
         _minimumStakeAmount = minStake;
