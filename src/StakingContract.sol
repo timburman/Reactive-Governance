@@ -1,26 +1,17 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {ReactiveStaking} from "./ReactiveStakingAbstract.sol";
-import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
-contract StakingContract is Initializable, ReactiveStaking, OwnableUpgradeable {
-    // constructor() {
-    //     _disableInitializers();
-    // }
-
-    function initialize(
+contract StakingContract is ReactiveStaking, Ownable {
+    constructor(
         address initialOwner,
         address stakingTokenAddress,
         uint256 cooldown,
         uint256 minStake,
         uint256 minUnstake
-    ) public initializer {
-        __Ownable_init(initialOwner);
-        __ReentrancyGuard_init();
-        _initializeReactiveStaking(stakingTokenAddress, cooldown, minStake, minUnstake);
-    }
+    ) Ownable(initialOwner) ReactiveStaking(stakingTokenAddress, cooldown, minStake, minUnstake) {}
 
     function setVotingContract(address votingContractAddress) public override onlyOwner {
         super.setVotingContract(votingContractAddress);
