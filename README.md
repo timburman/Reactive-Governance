@@ -1,43 +1,42 @@
 # Reactive Governance
-#### Author: Aryan Kaushik
+
+#### Author: Aryan Kaushik (mail.aryankaushik@gmail.com)
 #### Status: Research / Proof-of-Concept
 
-A novel, on-demand snapshotting framework for secure and gas-efficient on-chain DAO governance. This repository contains the reference implementation for the research paper.
+A novel, selective on-demand snapshotting framework for secure and gas-efficient on-chain DAO governance. This repository contains the production-ready reference implementation for the research paper.
 
 ## Abstract
-On-chain governance for Decentralized Autonomous Organizations (DAOs) is constrained by a critical trilemma, forcing a choice between insecure live-balance reading, unscalable "brute-force" snapshots, or inefficient "continuous checkpointing" systems (`ERC20Votes`) that impose a heavy gas tax on all token transfers.
+On-chain governance systems for Decentralized Autonomous Organizations (DAOs) face a critical trilemma between security, scalability, and gas efficiency. Existing approaches either expose governance to manipulation (live balances), impose exponential proposal costs (brute-force snapshots), or burden all token transfers with continuous checkpointing overhead (`ERC20Votes`).
 
-Reactive Governance is a new design pattern that resolves this trilemma. The model applies balance snapshots on a reactive, just-in-time basis, recording a user's balance only when they attempt to alter their stake during an active proposal period.
+**Reactive Governance** challenges the notion that this trade-off is necessary. It is a novel selective snapshot model that resolves this trilemma by providing robust security while prioritizing ecosystem-wide gas efficiency. The model applies balance snapshots on a reactive, just-in-time basis, recording a user's balance only when they attempt to alter their stake during an active proposal period. 
 
-This approach eliminates the gas overhead on common token transfers, isolating the cost of security to a marginal, on-demand event. The result is a secure, scalable, and economically efficient on-chain governance system.
+By completely eliminating the gas overhead on the common `transfer` function, Reactive Governance proves that DAOs no longer have to sacrifice ecosystem-wide efficiency for the security of on-chain voting.
 
-## The Problem: The Hidden "Gas Tax"
-The current industry standard for secure on-chain voting is Continuous Checkpointing (popularized in OpenZeppelin's `ERC20Votes`). While secure, this model writes to storage on every `transfer()`, adding a significant gas overhead to the most common function of any token.
+## The Problem: The Governance Trilemma
+Existing governance systems rely on three flawed approaches:
+1. **Live Balance Reading:** Vulnerable to flash-loan and temporal manipulation attacks.
+2. **Brute-Force Snapshots:** Secure, but economically impractical at scale due to O(N) proposal iteration costs.
+3. **Continuous Checkpointing:** The industry standard (`ERC20Votes`). While it makes proposal creation efficient (O(1)), it imposes a constant "gas tax" on every single token transfer, making the token highly inefficient for non-governance activities.
 
-This acts as a hidden "gas tax" on all token holders, 24/7, making the token less efficient for trading, payments, and general DeFi composability.
+## The Solution: Reactive Governance
+Reactive Governance utilizes **lazy computation** to provide the same robust security guarantees without the constant overhead. It only takes a snapshot of a user's balance under one specific condition:
 
-## The Solution: On-Demand, Reactive Snapshots
-Reactive Governance provides the same robust security guarantees without the constant overhead. It is a "just-in-time" system that only takes a snapshot of a user's balance under one specific condition:
+> When a user tries to alter their stake (`stake()` or `unstake()`) during a live proposal period.
 
-When a user tries to alter their stake (`stake()` or `unstake()`) during a live proposal period.
+For all other token transfers, the system does nothing. This isolates the full cost of security to a marginal, on-demand event paid only by the small subset of users who interact with staking during a live vote.
 
-For all other token transfers, the system does nothing, resulting in zero additional gas overhead.
+## Key Contributions & Features
+- **Zero Gas Overhead on Transfers:** Eliminates the continuous checkpointing gas tax, making the token as efficient as a standard ERC-20 for all DeFi and payment activities.
+- **Robust Security Proof:** Formally prevents mid-proposal voting power manipulation, completely defeating Flash Loan attacks and late-staking strategies.
+- **Scalable Proposal Creation:** The cost to create a proposal remains a fixed, highly-optimized operation, regardless of network size or staker count.
+- **Modular Architecture:** The system implements a strict separation of concerns through an event-based, two-contract ecosystem (`StakingContract` and `VotingContract`).
 
-## Key Features
-- Zero Gas Overhead on Transfers: Makes the token as efficient as a standard ERC20 for all non-governance activities.
+## Architecture & Gas Efficiency
+The system is composed of two core contracts:
+- **`StakingContract.sol` (The Ledger):** Handles all staking/unstaking logic, cooldown periods, and implements the selective snapshot algorithm. It is the single source of truth for voting power.
+- **`VotingContract.sol` (The Governor):** Orchestrates the full proposal lifecycle (creation, voting, execution) and delegates all voting power lookups to the `StakingContract`.
 
-- Robust Security: Fully protects against flash loan and late-staking governance attacks.
-
-- Scalable Proposal Creation: The cost to create a proposal is a fixed, O(1) operation, regardless of the number of stakers.
-
-- Architectural Simplicity: The logic is contained within a modular, two-contract system.
-
-## Architecture Overview
-The system is composed of two core contracts, promoting a strong separation of concerns:
-
-- `StakingContract.sol` (The Ledger): This contract is the engine. It manages all staking/unstaking logic, cooldown periods, and implements the entire selective snapshot algorithm. It is the single source of truth for voting power.
-
-- `VotingContract.sol` (The Governor): This is the high-level orchestrator. It manages the full proposal lifecycle (creation, voting, execution) and delegates all voting power lookups to the StakingContract.
+For a comprehensive empirical analysis of the gas savings, deployment costs, and the isolated metrics for core operations, please see the full [Gas Report (Appendix B)](gas_report.md) and the raw Foundry execution logs in `ReactiveGovernanceGasReport.txt`.
 
 ## Getting Started
 This project is built with the Foundry framework.
@@ -47,31 +46,32 @@ This project is built with the Foundry framework.
 
 **Installation & Setup**
 1.  Clone the repository:
-```
-git clone [https://github.com/timburman/Reactive-Governance.git](https://github.com/timburman/Reactive-Governance.git)
+```bash
+git clone https://github.com/timburman/Reactive-Governance.git
 cd Reactive-Governance
 ```
 
 2. Install dependencies:
-```
+```bash
 forge install
 ```
+
 **Compile & Test**
 1. Compile the contracts:
-```
+```bash
 forge build
 ```
-2. Run the test suite:
-```
+2. Run the test suite and gas profiler:
+```bash
 forge test
+forge test --gas-report
 ```
-
-
-## License
-This work is licensed under a Creative Commons Attribution 4.0 International License. You are free to share and adapt this work for any purpose, including commercial, as long as you give appropriate credit.
 
 ## Citation
 If you use this work in your research, please cite it as follows:
+```text
+A. Kaushik, "Reactive Governance: A Selective Snapshotting Framework for Secure and Gas-Efficient DAO Voting," 2026.
 ```
-A. Kaushik, "Reactive Governance: An On-Demand Snapshotting Framework for Secure DAOS,", 2025.
-```
+
+## License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
