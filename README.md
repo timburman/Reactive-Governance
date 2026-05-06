@@ -1,6 +1,7 @@
 # Reactive Governance
 
 #### Author: Aryan Kaushik (mail.aryankaushik@gmail.com)
+#### Paper: [Zenodo Preprint (20037058)](https://zenodo.org/records/20037058)
 #### Status: Research / Proof-of-Concept
 
 A novel, selective on-demand snapshotting framework for secure and gas-efficient on-chain DAO governance. This repository contains the production-ready reference implementation for the research paper.
@@ -70,7 +71,7 @@ forge test --gas-report
 ## Citation
 If you use this work in your research, please cite it as follows:
 ```text
-A. Kaushik, "Reactive Governance: A Selective Snapshotting Framework for Secure and Gas-Efficient DAO Voting," 2026.
+A. Kaushik, "Reactive Governance: A Selective Snapshotting Framework for Secure and Gas-Efficient DAO Voting," Zenodo, 2026. https://zenodo.org/records/20037058
 ```
 
 ## License
